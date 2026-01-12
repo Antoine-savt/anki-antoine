@@ -8,7 +8,7 @@ interface DeckWithStats extends Deck {
 }
 
 export default function DeckList() {
-  const { loadDecks, createDeck, deleteDeck, selectDeck, getDecksWithStats } = useDeckStore();
+  const { decks: allDecks, loadDecks, createDeck, deleteDeck, selectDeck, selectedDeckId, getDecksWithStats } = useDeckStore();
   const [decks, setDecks] = useState<DeckWithStats[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
@@ -47,11 +47,17 @@ export default function DeckList() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Mes Decks</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Mes Decks</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Sélectionnez un deck pour commencer à étudier ou créer des cartes
+          </p>
+        </div>
         {!isCreating && (
           <button
             onClick={() => setIsCreating(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
+            title="Créer un nouveau deck (Entrée pour confirmer)"
           >
             + Nouveau Deck
           </button>
@@ -96,28 +102,57 @@ export default function DeckList() {
       )}
 
       {decks.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <p className="text-lg mb-2">Aucun deck pour le moment</p>
-          <p>Créez votre premier deck pour commencer !</p>
+        <div className="text-center py-16">
+          <div className="max-w-md mx-auto">
+            <div className="text-6xl mb-4">📚</div>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+              Commencez votre apprentissage !
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Créez votre premier deck de cartes pour commencer à apprendre avec la répétition espacée.
+            </p>
+            {!isCreating && (
+              <button
+                onClick={() => setIsCreating(true)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-lg font-semibold shadow-lg"
+              >
+                + Créer mon premier deck
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {decks.map((deck) => (
             <div
               key={deck.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 hover:shadow-lg transition-all cursor-pointer border-2 ${
+                selectedDeckId === deck.id
+                  ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
+                  : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
               onClick={() => selectDeck(deck.id)}
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {deck.name}
-                </h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+                      {deck.name}
+                    </h3>
+                    {selectedDeckId === deck.id && (
+                      <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-semibold rounded-full">
+                        Sélectionné
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowDeleteConfirm(deck.id);
                   }}
-                  className="text-red-500 hover:text-red-700 text-lg"
+                  className="text-red-500 hover:text-red-700 text-lg font-bold ml-2"
+                  title="Supprimer le deck"
                 >
                   ×
                 </button>
@@ -129,12 +164,26 @@ export default function DeckList() {
                 </p>
               )}
 
-              <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-                <span>{deck.cardCount} cartes</span>
-                <span className={deck.dueCards > 0 ? 'text-orange-600 font-semibold' : ''}>
-                  {deck.dueCards} à réviser
-                </span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">📝 Cartes</span>
+                  <span className="font-semibold text-gray-800 dark:text-white">{deck.cardCount}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">⏰ À réviser</span>
+                  <span className={`font-semibold ${deck.dueCards > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                    {deck.dueCards}
+                  </span>
+                </div>
               </div>
+              
+              {selectedDeckId === deck.id && (
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 text-center">
+                    ✓ Cliquez sur "Étude" ou "Cartes" pour continuer
+                  </p>
+                </div>
+              )}
 
               {showDeleteConfirm === deck.id && (
                 <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">

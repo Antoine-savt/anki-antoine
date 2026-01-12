@@ -31,9 +31,22 @@ export default function CardList() {
       </div>
 
       {cards.length === 0 ? (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <p className="text-lg mb-2">Aucune carte dans ce deck</p>
-          <p>Créez votre première carte pour commencer !</p>
+        <div className="text-center py-16">
+          <div className="max-w-md mx-auto">
+            <div className="text-6xl mb-4">🃏</div>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+              Aucune carte dans ce deck
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Créez votre première carte ci-dessus pour commencer à apprendre !
+            </p>
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                💡 <strong>Astuce :</strong> Utilisez le formulaire ci-dessus pour créer votre première carte. 
+                Vous pouvez utiliser le formatage Markdown pour enrichir vos cartes !
+              </p>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="space-y-4">

@@ -47,15 +47,15 @@ export default function Navigation({ currentTab, onTabChange }: NavigationProps)
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`px-4 py-2 rounded-lg transition-all ${
                   currentTab === tab.id
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-blue-600 text-white shadow-md'
                     : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
                 title={tab.label}
               >
                 <span className="mr-2">{tab.icon}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="hidden sm:inline font-medium">{tab.label}</span>
               </button>
             ))}
           </div>

@@ -31,6 +31,32 @@ export default function StudySession() {
     await answerCard(difficulty);
   };
 
+  // Raccourcis clavier
+  useEffect(() => {
+    if (!session || !isFlipped) return;
+
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if (e.key === '1' || e.key === 'h' || e.key === 'H') {
+        e.preventDefault();
+        await answerCard('hard');
+      } else if (e.key === '2' || e.key === 'm' || e.key === 'M') {
+        e.preventDefault();
+        await answerCard('medium');
+      } else if (e.key === '3' || e.key === 'e' || e.key === 'E') {
+        e.preventDefault();
+        await answerCard('easy');
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!isFlipped) {
+          flipCard();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [session, isFlipped, answerCard, flipCard]);
+
   const currentCard = getNextCard();
   const progress = session
     ? Math.round(((session.currentCardIndex + 1) / session.cardsToReview.length) * 100)
@@ -38,8 +64,16 @@ export default function StudySession() {
 
   if (!selectedDeckId) {
     return (
-      <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-        <p>Veuillez sélectionner un deck pour commencer une session d'étude</p>
+      <div className="p-6 text-center">
+        <div className="max-w-md mx-auto py-12">
+          <div className="text-5xl mb-4">📖</div>
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+            Aucun deck sélectionné
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Veuillez sélectionner un deck dans l'onglet "Decks" pour commencer une session d'étude.
+          </p>
+        </div>
       </div>
     );
   }
@@ -146,31 +180,39 @@ export default function StudySession() {
           </div>
         </div>
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-          Cliquez sur la carte pour retourner
+          👆 Cliquez sur la carte ou appuyez sur Espace/Entrée pour retourner
         </p>
       </div>
 
       {/* Boutons de réponse */}
       {isFlipped && (
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => handleAnswer('hard')}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
-          >
-            Difficile
-          </button>
-          <button
-            onClick={() => handleAnswer('medium')}
-            className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-semibold"
-          >
-            Moyen
-          </button>
-          <button
-            onClick={() => handleAnswer('easy')}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-          >
-            Facile
-          </button>
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => handleAnswer('hard')}
+              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+              title="Raccourci : 1 ou H"
+            >
+              🔴 Difficile (1/H)
+            </button>
+            <button
+              onClick={() => handleAnswer('medium')}
+              className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+              title="Raccourci : 2 ou M"
+            >
+              🟡 Moyen (2/M)
+            </button>
+            <button
+              onClick={() => handleAnswer('easy')}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+              title="Raccourci : 3 ou E"
+            >
+              🟢 Facile (3/E)
+            </button>
+          </div>
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+            💡 Utilisez les raccourcis clavier pour répondre plus rapidement
+          </p>
         </div>
       )}
 
