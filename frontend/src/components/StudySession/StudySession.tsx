@@ -6,7 +6,7 @@ import { useStudyStore } from '../../stores/studyStore';
 import { useDeckStore } from '../../stores/deckStore';
 
 export default function StudySession() {
-  const { session, isFlipped, startSession, answerCard, flipCard, endSession, getNextCard } = useStudyStore();
+  const { session, isFlipped, startSession, nextCard, flipCard, endSession, getNextCard } = useStudyStore();
   const { selectedDeckId } = useDeckStore();
   const [error, setError] = useState<string | null>(null);
 
@@ -27,35 +27,26 @@ export default function StudySession() {
     }
   };
 
-  const handleAnswer = async (difficulty: 'easy' | 'medium' | 'hard') => {
-    await answerCard(difficulty);
-  };
-
   // Raccourcis clavier
   useEffect(() => {
-    if (!session || !isFlipped) return;
+    if (!session) return;
 
-    const handleKeyDown = async (e: KeyboardEvent) => {
-      if (e.key === '1' || e.key === 'h' || e.key === 'H') {
-        e.preventDefault();
-        await answerCard('hard');
-      } else if (e.key === '2' || e.key === 'm' || e.key === 'M') {
-        e.preventDefault();
-        await answerCard('medium');
-      } else if (e.key === '3' || e.key === 'e' || e.key === 'E') {
-        e.preventDefault();
-        await answerCard('easy');
-      } else if (e.key === ' ' || e.key === 'Enter') {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         if (!isFlipped) {
+          // Afficher la réponse
           flipCard();
+        } else {
+          // Passer à la carte suivante
+          nextCard();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [session, isFlipped, answerCard, flipCard]);
+  }, [session, isFlipped, flipCard, nextCard]);
 
   const currentCard = getNextCard();
   const progress = session
@@ -113,7 +104,7 @@ export default function StudySession() {
             🎉 Session terminée !
           </h2>
           <p className="text-green-700 dark:text-green-300 mb-6">
-            Vous avez révisé {session.reviews.length} carte(s)
+            Vous avez révisé {session.cardsToReview.length} carte(s)
           </p>
         </div>
         <button
@@ -180,41 +171,13 @@ export default function StudySession() {
           </div>
         </div>
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-          👆 Cliquez sur la carte ou appuyez sur Espace/Entrée pour retourner
+          {!isFlipped ? (
+            <>👆 Cliquez sur la carte ou appuyez sur <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Espace</kbd> pour afficher la réponse</>
+          ) : (
+            <>👆 Appuyez sur <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">Espace</kbd> pour passer à la carte suivante</>
+          )}
         </p>
       </div>
-
-      {/* Boutons de réponse */}
-      {isFlipped && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => handleAnswer('hard')}
-              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
-              title="Raccourci : 1 ou H"
-            >
-              🔴 Difficile (1/H)
-            </button>
-            <button
-              onClick={() => handleAnswer('medium')}
-              className="px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
-              title="Raccourci : 2 ou M"
-            >
-              🟡 Moyen (2/M)
-            </button>
-            <button
-              onClick={() => handleAnswer('easy')}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
-              title="Raccourci : 3 ou E"
-            >
-              🟢 Facile (3/E)
-            </button>
-          </div>
-          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-            💡 Utilisez les raccourcis clavier pour répondre plus rapidement
-          </p>
-        </div>
-      )}
 
       {/* Bouton quitter */}
       <div className="mt-6 text-center">

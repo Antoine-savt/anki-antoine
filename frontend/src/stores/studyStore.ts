@@ -1,14 +1,13 @@
 import { create } from 'zustand';
-import { Card, Review, StudySession } from '../types';
+import { Card, StudySession } from '../types';
 import { db } from '../services/database';
-import { calculateSM2, difficultyToQuality } from '../utils/sm2';
 import { useCardStore } from './cardStore';
 
 interface StudyStore {
   session: StudySession | null;
   isFlipped: boolean;
   startSession: (deckId: string) => Promise<void>;
-  answerCard: (difficulty: 'easy' | 'medium' | 'hard') => Promise<void>;
+  nextCard: () => void;
   flipCard: () => void;
   endSession: () => void;
   getNextCard: () => Card | null;
@@ -19,15 +18,17 @@ export const useStudyStore = create<StudyStore>((set, get) => ({
   isFlipped: false,
 
   startSession: async (deckId: string) => {
-    const cardsToReview = await useCardStore.getState().getCardsDue(deckId);
+    // Charger toutes les cartes du deck
+    await useCardStore.getState().loadCards(deckId);
+    const allCards = await db.cards.where('deckId').equals(deckId).toArray();
     
-    if (cardsToReview.length === 0) {
-      throw new Error('Aucune carte à réviser dans ce deck');
+    if (allCards.length === 0) {
+      throw new Error('Aucune carte dans ce deck');
     }
 
     const session: StudySession = {
       deckId,
-      cardsToReview,
+      cardsToReview: allCards,
       currentCardIndex: 0,
       startTime: new Date(),
       reviews: [],
@@ -36,38 +37,10 @@ export const useStudyStore = create<StudyStore>((set, get) => ({
     set({ session, isFlipped: false });
   },
 
-  answerCard: async (difficulty: 'easy' | 'medium' | 'hard') => {
+  nextCard: () => {
     const { session } = get();
     if (!session) return;
 
-    const currentCard = session.cardsToReview[session.currentCardIndex];
-    if (!currentCard) return;
-
-    const quality = difficultyToQuality(difficulty);
-    const sm2Result = calculateSM2(currentCard, quality);
-
-    // Mettre à jour la carte
-    const updatedCard: Card = {
-      ...currentCard,
-      ...sm2Result,
-      updatedAt: new Date(),
-    };
-
-    await db.cards.update(currentCard.id, updatedCard);
-
-    // Créer une révision
-    const review: Review = {
-      id: crypto.randomUUID(),
-      cardId: currentCard.id,
-      quality,
-      reviewDate: new Date(),
-      timeSpent: 0, // TODO: calculer le temps réel
-    };
-
-    await db.reviews.add(review);
-
-    // Mettre à jour la session
-    const newReviews = [...session.reviews, review];
     const nextIndex = session.currentCardIndex + 1;
 
     if (nextIndex >= session.cardsToReview.length) {
@@ -77,7 +50,6 @@ export const useStudyStore = create<StudyStore>((set, get) => ({
       set({
         session: {
           ...session,
-          reviews: newReviews,
           currentCardIndex: nextIndex,
         },
         isFlipped: false,
