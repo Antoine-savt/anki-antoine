@@ -130,12 +130,25 @@ export default function DeckList() {
               if (e.key === 'Escape') {
                 setIsCreating(false);
                 setNewDeckName('');
+                setNewDeckParentId(null);
               }
             }}
-            placeholder="Nom du deck"
+            placeholder="Nom du deck ou sous-section"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white mb-2"
             autoFocus
           />
+          {mainDecks.length > 0 && (
+            <select
+              value={newDeckParentId || ''}
+              onChange={(e) => setNewDeckParentId(e.target.value || null)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white mb-2"
+            >
+              <option value="">Deck principal (pas de parent)</option>
+              {mainDecks.map(deck => (
+                <option key={deck.id} value={deck.id}>Sous-section de: {deck.name}</option>
+              ))}
+            </select>
+          )}
           <div className="flex gap-2">
             <button
               onClick={handleCreateDeck}
@@ -147,6 +160,7 @@ export default function DeckList() {
               onClick={() => {
                 setIsCreating(false);
                 setNewDeckName('');
+                setNewDeckParentId(null);
               }}
               className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400"
             >
@@ -486,78 +500,6 @@ export default function DeckList() {
                 </div>
               </div>
               
-              {selectedDeckId === deck.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowCardForm(showCardForm === deck.id ? null : deck.id);
-                    }}
-                    className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-semibold"
-                  >
-                    + Ajouter une carte rapide
-                  </button>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 text-center">
-                    ✓ Cliquez sur "Étude" ou "Cartes" pour continuer
-                  </p>
-                </div>
-              )}
-
-              {showCardForm === deck.id && (
-                <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={quickCardFront}
-                      onChange={(e) => setQuickCardFront(e.target.value)}
-                      placeholder="Recto (question)..."
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-white"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && e.ctrlKey) {
-                          handleCreateQuickCard(deck.id);
-                        }
-                      }}
-                    />
-                    <input
-                      type="text"
-                      value={quickCardBack}
-                      onChange={(e) => setQuickCardBack(e.target.value)}
-                      placeholder="Verso (réponse)..."
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-800 dark:text-white"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && e.ctrlKey) {
-                          handleCreateQuickCard(deck.id);
-                        }
-                      }}
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCreateQuickCard(deck.id);
-                        }}
-                        disabled={!quickCardFront.trim() || !quickCardBack.trim()}
-                        className="flex-1 px-2 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        Créer (Ctrl+Entrée)
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowCardForm(null);
-                          setQuickCardFront('');
-                          setQuickCardBack('');
-                        }}
-                        className="px-2 py-1.5 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded text-sm hover:bg-gray-400"
-                      >
-                        Annuler
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {showDeleteConfirm === deck.id && (
                 <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
