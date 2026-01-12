@@ -16,6 +16,14 @@ function App() {
     loadDecks();
   }, [loadDecks]);
 
+  useEffect(() => {
+    const handleTabChange = (e: CustomEvent) => {
+      setCurrentTab(e.detail as Tab);
+    };
+    window.addEventListener('changeTab', handleTabChange as EventListener);
+    return () => window.removeEventListener('changeTab', handleTabChange as EventListener);
+  }, []);
+
   const renderContent = () => {
     switch (currentTab) {
       case 'decks':

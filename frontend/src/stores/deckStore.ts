@@ -38,6 +38,7 @@ export const useDeckStore = create<DeckStore>((set, get) => ({
       id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
+      parentDeckId: deckData.parentDeckId,
     };
     
     await db.decks.add(newDeck);
