@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useCardStore } from '../../stores/cardStore';
 import { useDeckStore } from '../../stores/deckStore';
 import { Card } from '../../types';
+import Toolbar from './Toolbar';
 
 interface CardEditorProps {
   card?: Card;
@@ -21,6 +22,8 @@ export default function CardEditor({ card, onSave, onCancel }: CardEditorProps) 
   const [previewMode, setPreviewMode] = useState<'edit' | 'preview'>('edit');
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const frontTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const backTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSave = async () => {
     if (!selectedDeckId) {
