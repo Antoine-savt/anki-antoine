@@ -8,7 +8,7 @@ interface DeckWithStats extends Deck {
 }
 
 export default function DeckList() {
-  const { decks: allDecks, loadDecks, createDeck, deleteDeck, selectDeck, selectedDeckId, getDecksWithStats } = useDeckStore();
+  const { loadDecks, createDeck, deleteDeck, selectDeck, selectedDeckId, getDecksWithStats } = useDeckStore();
   const [decks, setDecks] = useState<DeckWithStats[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
