@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 interface ToolbarProps {
   textareaRef: React.RefObject<HTMLTextAreaElement>;
   onTextChange: (newText: string) => void;

@@ -72,6 +72,70 @@ export default function CardEditor({ card, onSave, onCancel }: CardEditorProps) 
   // Raccourcis clavier
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
+      const isInTextarea = activeElement === frontTextareaRef.current || activeElement === backTextareaRef.current;
+      
+      // Raccourcis de formatage uniquement dans les textareas
+      if (isInTextarea && (e.ctrlKey || e.metaKey)) {
+        if (e.key === 'b') {
+          e.preventDefault();
+          const textarea = activeElement as HTMLTextAreaElement;
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const text = textarea === frontTextareaRef.current ? front : back;
+          const selectedText = text.substring(start, end);
+          const beforeText = text.substring(0, start);
+          const afterText = text.substring(end);
+          const newText = beforeText + '**' + selectedText + '**' + afterText;
+          if (textarea === frontTextareaRef.current) {
+            setFront(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 2 + selectedText.length, start + 2 + selectedText.length), 0);
+          } else {
+            setBack(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 2 + selectedText.length, start + 2 + selectedText.length), 0);
+          }
+          return;
+        }
+        if (e.key === 'i') {
+          e.preventDefault();
+          const textarea = activeElement as HTMLTextAreaElement;
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const text = textarea === frontTextareaRef.current ? front : back;
+          const selectedText = text.substring(start, end);
+          const beforeText = text.substring(0, start);
+          const afterText = text.substring(end);
+          const newText = beforeText + '*' + selectedText + '*' + afterText;
+          if (textarea === frontTextareaRef.current) {
+            setFront(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 1 + selectedText.length, start + 1 + selectedText.length), 0);
+          } else {
+            setBack(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 1 + selectedText.length, start + 1 + selectedText.length), 0);
+          }
+          return;
+        }
+        if (e.key === 'u') {
+          e.preventDefault();
+          const textarea = activeElement as HTMLTextAreaElement;
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const text = textarea === frontTextareaRef.current ? front : back;
+          const selectedText = text.substring(start, end);
+          const beforeText = text.substring(0, start);
+          const afterText = text.substring(end);
+          const newText = beforeText + '<u>' + selectedText + '</u>' + afterText;
+          if (textarea === frontTextareaRef.current) {
+            setFront(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 3 + selectedText.length, start + 3 + selectedText.length), 0);
+          } else {
+            setBack(newText);
+            setTimeout(() => textarea.setSelectionRange(start + 3 + selectedText.length, start + 3 + selectedText.length), 0);
+          }
+          return;
+        }
+      }
+
       // Ctrl/Cmd + S pour sauvegarder
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
@@ -143,12 +207,16 @@ export default function CardEditor({ card, onSave, onCancel }: CardEditorProps) 
             Recto
           </label>
           {previewMode === 'edit' ? (
-            <textarea
-              value={front}
-              onChange={(e) => setFront(e.target.value)}
-              placeholder="Question ou mot à apprendre..."
-              className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none font-mono text-sm"
-            />
+            <>
+              <Toolbar textareaRef={frontTextareaRef} onTextChange={setFront} currentText={front} />
+              <textarea
+                ref={frontTextareaRef}
+                value={front}
+                onChange={(e) => setFront(e.target.value)}
+                placeholder="Question ou mot à apprendre..."
+                className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none text-sm mt-2"
+              />
+            </>
           ) : (
             <div className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white overflow-y-auto prose dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
@@ -164,12 +232,16 @@ export default function CardEditor({ card, onSave, onCancel }: CardEditorProps) 
             Verso
           </label>
           {previewMode === 'edit' ? (
-            <textarea
-              value={back}
-              onChange={(e) => setBack(e.target.value)}
-              placeholder="Réponse ou définition..."
-              className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none font-mono text-sm"
-            />
+            <>
+              <Toolbar textareaRef={backTextareaRef} onTextChange={setBack} currentText={back} />
+              <textarea
+                ref={backTextareaRef}
+                value={back}
+                onChange={(e) => setBack(e.target.value)}
+                placeholder="Réponse ou définition..."
+                className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white resize-none text-sm mt-2"
+              />
+            </>
           ) : (
             <div className="w-full h-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white overflow-y-auto prose dark:prose-invert max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
@@ -194,16 +266,16 @@ export default function CardEditor({ card, onSave, onCancel }: CardEditorProps) 
         />
       </div>
 
-      {/* Aide Markdown */}
+      {/* Aide Formatage */}
       <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <p className="font-semibold mb-2 text-blue-900 dark:text-blue-200 flex items-center gap-2">
-          💡 Astuce : Formatage Markdown disponible
+          💡 Astuce : Utilisez les boutons de la barre d'outils ou les raccourcis clavier
         </p>
         <div className="grid grid-cols-2 gap-2 text-sm text-blue-800 dark:text-blue-300">
-          <div><code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">**gras**</code> → <strong>gras</strong></div>
-          <div><code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">*italique*</code> → <em>italique</em></div>
-          <div><code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">`code`</code> → <code>code</code></div>
-          <div><code className="bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded"># Titre</code> → Titre</div>
+          <div><strong>Ctrl+B</strong> → <strong>Gras</strong></div>
+          <div><strong>Ctrl+I</strong> → <em>Italique</em></div>
+          <div><strong>Ctrl+U</strong> → <u>Souligné</u></div>
+          <div><strong>Boutons</strong> → Cliquez pour formater le texte sélectionné</div>
         </div>
       </div>
 
