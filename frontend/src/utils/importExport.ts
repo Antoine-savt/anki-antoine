@@ -1,4 +1,4 @@
-import { Card, Deck } from '../types';
+import { Card } from '../types';
 import { db } from '../services/database';
 import { createDefaultCard } from './sm2';
 

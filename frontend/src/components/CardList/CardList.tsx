@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useCardStore } from '../../stores/cardStore';
 import { useDeckStore } from '../../stores/deckStore';
-import { Card } from '../../types';
 import { format } from 'date-fns';
 
 export default function CardList() {
   const { selectedDeckId } = useDeckStore();
   const { cards, loadCards, deleteCard } = useCardStore();
-  const [isEditing, setIsEditing] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {

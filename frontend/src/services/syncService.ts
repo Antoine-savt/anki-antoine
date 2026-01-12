@@ -1,7 +1,6 @@
-import { Card, Deck, Review } from '../types';
 import { db } from './database';
 
-const API_URL = process.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export interface SyncResult {
   success: boolean;

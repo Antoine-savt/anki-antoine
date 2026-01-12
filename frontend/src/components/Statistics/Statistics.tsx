@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, subDays, startOfDay } from 'date-fns';
 import { db } from '../../services/database';
-import { Review, Card } from '../../types';
 import { useDeckStore } from '../../stores/deckStore';
 
 interface DailyStats {

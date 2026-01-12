@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Deck, Card } from '../types';
+import { Deck } from '../types';
 import { db } from '../services/database';
 
 interface DeckStore {
